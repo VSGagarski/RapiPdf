@@ -1,0 +1,672 @@
+{
+    "openapi": "3.0.2",
+    "info": {
+        "title": "Chasovaya - MIS Integration",
+        "description": "Описание протокола взаимодействия с МИС в рамках проекта на Часовой. Для передачи данных используется архитектура [REST](https://en.wikipedia.org/wiki/Representational_state_transfer). Служба интеграции МИС предоставляет HTTP сервер. <br><br> Контакты: <br> Сайт - http://auto-sys.su  <br> Инженер OOO Автономные системы - Готовцев А.Г. <br> Email - a.gotovcev@auto-sys.su ",
+        "version": "1.0"
+    },
+    "servers": [{
+        "url": "https://api.mis.chasovaya/v1",
+        "description": "(пример) URI ресурса службы МИС"
+    }],
+    "tags": [{
+            "name": "patient",
+            "description": "Операции с пациентами"
+        },
+        {
+            "name": "doctor",
+            "description": "Операции с врачами"
+        },
+        {
+            "name": "appointment",
+            "description": "Операции с талонами приема"
+        }
+    ],
+    "paths": {
+        "/patient": {
+            "summary": "Представление списка пацинетов",
+            "description": "Ресурс представляет список всех зарегистрированных в базе данных учреждения пациентов.",
+            "get": {
+                "summary": "Получение списка пациентов",
+                "description": "Получить список всех зарегистрированных в базе данных учреждения пациентов. При указании временного отрезка ресурс возвращает только тех пациентов, дата регистрации которых попадает в этот отрезок.",
+                "operationId": "getPatients",
+                "parameters": [{
+                        "name": "startPoint",
+                        "description": "Начало временного отрезка",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/TimePoint"
+                        }
+                    },
+                    {
+                        "name": "endPoint",
+                        "description": "Конец временного отрезка",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/TimePoint"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список успешно возвращен",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Patients"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Неизвестная ошибка",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "patient"
+                ]
+            },
+            "post": {
+                "summary": "Subscribe to a webhook",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application / json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "callbackUrl": {
+                                        "type": "string",
+                                        "format": "uri",
+                                        "example": "https: //myserver.com/send/callback/here"
+                                    }
+                                },
+                                "required": ["callbackUrl"]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Webhook created"
+                    }
+                }
+
+            }
+        },
+        "/patient/{id}": {
+            "summary": "Представление пациента",
+            "description": "Ресурс представляет конкретного пациента, зарегистрированного в базе данных учреждения с уникальным идентификатором",
+            "get": {
+                "summary": "Получение пациента",
+                "description": "Получить конкретного зарегистрированного пациента по его уникальному идентификатору",
+                "operationId": "getPatientById",
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "description": "Уникальный идентификатор пациента",
+                    "schema": {
+                        "$ref": "#/components/schemas/Guid"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Пациент успешно возвращен",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Patient"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Неизвестная ошибка",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "patient"
+                ]
+            }
+        },
+        "/doctor": {
+            "summary": "Представление списка врача",
+            "description": "Ресурс представляет список врачей, зарегистрированных в базе данных учреждения",
+            "get": {
+                "summary": "Получение списка врачей",
+                "description": "Получить список всех врачей, зарегистрированных в базе данных учреждения. При указании временного отрезка ресурс возвращает только тех врачей, дата регистрации которых попадает в этот отрезок.",
+                "operationId": "getDoctors",
+                "parameters": [{
+                        "name": "startPoint",
+                        "description": "Начало временного отрезка",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/TimePoint"
+                        }
+                    },
+                    {
+                        "name": "endPoint",
+                        "description": "Конец временного отрезка",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/TimePoint"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список успешно возвращен",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Doctors"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Неизвестная ошибка",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "doctor"
+                ]
+            }
+        },
+        "/doctor/{id}": {
+            "summary": "Представление врача",
+            "description": "Ресурс представляет конкретного врача, зарегистрированного в базе данных учреждения с уникальным идентификатором",
+            "get": {
+                "summary": "Получение врача",
+                "description": "Получить конкретного зарегистрированного врача по его уникальному идентификатору",
+                "operationId": "getDoctorById",
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "description": "Уникальный идентификатор врача",
+                    "schema": {
+                        "$ref": "#/components/schemas/Doctor"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Врач успешно возвращен",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Doctor"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Неизвестная ошибка",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "doctor"
+                ]
+            }
+        },
+        "/appointment": {
+            "summary": "Представление списка талонов приема",
+            "description": "Ресурс представляет список талонов приема, зарегистрированных в базе данных учреждения",
+            "get": {
+                "summary": "Получение списка талонов приема",
+                "description": "Получить список всех талонов приема, зарегистрированных в базе данных учреждения. При указании временного отрезка ресурс возвращает только те талоны, дата и время приема которых попадает в этот отрезок. Если талон приема свободен, поле 'patientId' будет пустым",
+                "operationId": "getAppointments",
+                "parameters": [{
+                        "name": "startPoint",
+                        "description": "Начало временного отрезка",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/TimePoint"
+                        }
+                    },
+                    {
+                        "name": "endPoint",
+                        "description": "Конец временного отрезка",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/TimePoint"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список успешно возвращен",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Appointments"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Неизвестная ошибка",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "appointment"
+                ]
+            },
+            "put": {
+                "summary": "Запись пациента на прием",
+                "description": "Добавить пациента в свободный талон приема и вернуть измененный талон в МИС",
+                "operationId": "setAppointment",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Appointment"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Пациент успешно записан на прием"
+                    },
+                    "default": {
+                        "description": "Неизвестная ошибка",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "appointment"
+                ]
+            }
+        },
+        "/appointment/{id}": {
+            "summary": "Представление талона приема",
+            "description": "Ресурс представляет конекретный талон приема, зарегистрированный в базе данных учреждения",
+            "get": {
+                "summary": "Получение талона приема",
+                "description": "Получить конкретный талон приема по его уникальному идентификатору ",
+                "operationId": "getAppointmentById",
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "description": "Уникальный идентификатор талона приема",
+                    "schema": {
+
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Врач успешно возвращен",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Appointment"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Неизвестная ошибка",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "appointment"
+                ]
+            }
+        },
+        "/appointment/{doctorId}": {
+            "summary": "Представление списка талона приема",
+            "description": "Ресурс представляет список талонов приема, зарегистрированных в базе данных учреждения",
+            "get": {
+                "summary": "Получение списка талонов приема",
+                "description": "Получить список талонов приема, отфильтрованный по уникальному идентификатору врача. При указании временного отрезка ресурс возвращает только те талоны, дата и время приема которых попадает в этот отрезок.",
+                "operationId": "getAppointmentsByDoctorId",
+                "parameters": [{
+                        "name": "doctorId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Уникальный идентификатор врача",
+                        "schema": {
+                            "$ref": "#/components/schemas/Guid"
+                        }
+                    },
+                    {
+                        "name": "startPoint",
+                        "description": "Начало временного отрезка",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/TimePoint"
+                        }
+                    },
+                    {
+                        "name": "endPoint",
+                        "description": "Конец временного отрезка",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/TimePoint"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список успешно возвращен",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Appointment"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Неизвестная ошибка",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "appointment"
+                ]
+            }
+        },
+        "/appointment/{patientId}": {
+            "summary": "Представление талона приема",
+            "description": "Ресурс представляет список талонов приема, зарегистрированных в базе данных учреждения",
+            "get": {
+                "summary": "Получение списка талонов приема",
+                "description": "Получить список талонов приема, отфильтрованный по уникальному идентификатору пациента. При указании временного отрезка ресурс возвращает только те талоны, дата и время приема которых попадает в этот отрезок.",
+                "operationId": "getAppointmentByPatientId",
+                "parameters": [{
+                        "name": "patientId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Уникальный идентификатор врача",
+                        "schema": {
+                            "$ref": "#/components/schemas/Guid"
+                        }
+                    },
+                    {
+                        "name": "startPoint",
+                        "description": "Начало временного отрезка",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/TimePoint"
+                        }
+                    },
+                    {
+                        "name": "endPoint",
+                        "description": "Конец временного отрезка",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/TimePoint"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список успешно возвращен",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Appointments"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Неизвестная ошибка",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "appointment"
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Patients": {
+                "description": "Список пациентов",
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/Patient"
+                }
+            },
+            "Patient": {
+                "description": "Пациент",
+                "type": "object",
+                "required": [
+                    "id",
+                    "birthDate",
+                    "gender"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "Уникальный идентификатор пациента",
+                        "$ref": "#/components/schemas/Guid"
+                    },
+                    "birthDate": {
+                        "description": "Дата рождения пациента",
+                        "uniqueItems": false,
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "gender": {
+                        "description": "Пол пациента",
+                        "uniqueItems": false,
+                        "type": "string",
+                        "enum": [
+                            "male",
+                            "female"
+                        ]
+                    }
+                }
+            },
+            "Doctors": {
+                "description": "Список врачей",
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/Doctor"
+                }
+            },
+            "Doctor": {
+                "description": "Врач",
+                "type": "object",
+                "required": [
+                    "id",
+                    "firstName",
+                    "lastName",
+                    "patronymic",
+                    "specialization"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "Уникальный идентификатор врача",
+                        "$ref": "#/components/schemas/Guid"
+                    },
+                    "firstName": {
+                        "description": "Имя врача",
+                        "type": "string",
+                        "example": "Иван"
+                    },
+                    "lastName": {
+                        "description": "Фамилия врача",
+                        "type": "string",
+                        "example": "Иванов"
+                    },
+                    "patronymic": {
+                        "description": "Отчество врача",
+                        "type": "string",
+                        "example": "Иванович"
+                    },
+                    "specialization": {
+                        "description": "Специализация врача",
+                        "$ref": "#/components/schemas/Specialization"
+                    }
+                }
+            },
+            "Appointments": {
+                "description": "Список приемов",
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/Appointment"
+                }
+            },
+            "Appointment": {
+                "description": "Талон приема",
+                "type": "object",
+                "required": [
+                    "id",
+                    "doctorId",
+                    "patientId",
+                    "startTime"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "Уникальный идентификатор талона приема",
+                        "$ref": "#/components/schemas/Guid"
+                    },
+                    "doctorId": {
+                        "description": "Уникальный идентификатор принимающего врача",
+                        "type": "string",
+                        "format": "guid",
+                        "example": "64502797-9597-4218-80fb-2d42ce7a5bf9"
+                    },
+                    "patientId": {
+                        "description": "Уникальный идентификатор принимаемого пациента",
+                        "type": "string",
+                        "format": "guid",
+                        "example": "68a0ad33-7e48-490b-b511-d581c34790f1"
+                    },
+                    "startTime": {
+                        "description": "Дата и время начала приема",
+                        "$ref": "#/components/schemas/TimePoint"
+                    }
+                }
+            },
+            "Specialization": {
+                "description": "Специализация врача",
+                "type": "object",
+                "required": [
+                    "name"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Терапевт"
+                    }
+                }
+            },
+            "TimePoint": {
+                "description": "Временная точка",
+                "type": "string",
+                "format": "date-time",
+                "example": "2020-07-28T17:52:34+0300",
+                "externalDocs": {
+                    "description": "ISO8601",
+                    "url": "https://ru.wikipedia.org/wiki/ISO_8601"
+                }
+            },
+            "Guid": {
+                "description": "Идентификатор",
+                "uniqueItems": true,
+                "type": "string",
+                "format": "guid",
+                "example": "a3c36e19-ac31-4894-9e23-2ecfec423101",
+                "externalDocs": {
+                    "description": "UUID Spec",
+                    "url": "https://web.archive.org/web/20170726052655/http://www.ietf.org/rfc/rfc4122.txt"
+                }
+            },
+            "Error": {
+                "description": "Информация об ошибке",
+                "type": "object",
+                "required": [
+                    "code",
+                    "message"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

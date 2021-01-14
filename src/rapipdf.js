@@ -94,7 +94,7 @@ export default customElements.define('rapi-pdf', class RapiPdf extends HTMLEleme
     }
 
     this.localize = {
-      index: 'INDEX',
+      index: 'Оглавление',
       api: 'API',
       apiList: 'API List',
       apiReference: 'API Reference',
