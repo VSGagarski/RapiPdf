@@ -208,7 +208,7 @@ export default customElements.define('rapi-pdf', class RapiPdf extends HTMLEleme
     const pdfSortTags = this.getAttribute('pdf-sort-tags') !== 'false';
     const pdfPrimaryColor = this.getAttribute('pdf-primary-color');
     const pdfAlternateColor = this.getAttribute('pdf-alternate-color');
-    const pdfTitle = this.getAttribute('pdf-title') === null ? 'API Reference' : this.getAttribute('pdf-title');
+    const pdfTitle = this.getAttribute('pdf-title') === null ? 'Приложение 1' : this.getAttribute('pdf-title');
     const pdfCoverText = this.getAttribute('pdf-cover-text') ? this.getAttribute('pdf-cover-text') : '';
     const pdfSecurityText = this.getAttribute('pdf-security-text') ? this.getAttribute('pdf-security-text') : '';
     const pdfApiText = this.getAttribute('pdf-api-text') ? this.getAttribute('pdf-api-text') : '';
