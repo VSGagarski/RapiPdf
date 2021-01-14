@@ -97,7 +97,7 @@ export default customElements.define('rapi-pdf', class RapiPdf extends HTMLEleme
       index: 'Оглавление',
       api: 'API',
       apiList: 'API List',
-      apiReference: 'API Reference',
+      apiReference: 'Приложение 1',
       apiVersion: 'API Version',
       contact: 'CONTACT',
       name: 'NAME',
